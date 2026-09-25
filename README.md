@@ -11,9 +11,9 @@ API REST construida en **Node.js** con patrón de arquitectura en capas (**Contr
 | :--- | :--- | :--- |
 | **Entorno de Ejecución** | [Node.js](https://nodejs.org/) (v18+ o v20+) | Plataforma base de ejecución JavaScript en el servidor. |
 | **Framework Web** | [Express.js](https://expressjs.com/) | Enrutamiento ligero, manejo de middlewares y endpoints HTTP. |
-| **Motor de Base de Datos** | PostgreSQL / MySQL / SQLite | Motor relacional para integridad referencial (claves foráneas) y transacciones ACID. |
-| **Acceso a Datos / ORM** | Prisma / Sequelize o `pg` / `mysql2` | Consultas seguras, soporte de transacciones y operaciones *upsert*. |
-| **Validación de Datos** | [Zod](https://zod.dev/) o [Joi](https://joi.dev/) | Validación rigurosa de esquema y tipos del payload JSON entrante. |
+| **Motor de Base de Datos** | Microsoft SQL Server (Azure VM) | Motor relacional oficial en la nube para integridad referencial y transacciones ACID. |
+| **Acceso a Datos** | `mssql` | Driver oficial de SQL Server para Node.js con soporte de MERGE y transacciones. |
+| **Validación de Datos** | [Zod](https://zod.dev/) | Validación rigurosa de esquema y tipos del payload JSON entrante. |
 | **Configuración** | `dotenv` | Gestión segura de variables de entorno (puertos, credenciales de BD). |
 | **Seguridad y Utilidades** | `cors`, `helmet`, `morgan` | Control de orígenes permitidos, cabeceras seguras y logs de peticiones HTTP. |
 | **Desarrollo** | `nodemon` | Recarga automática del servidor durante el desarrollo local. |
