@@ -21,16 +21,25 @@ const dbConfig = {
   },
 };
 
-let poolPromise = null;
+let pool = null;
 
+/**
+ * Obtiene o reconecta el pool de SQL Server de forma segura en entornos Serverless (como Vercel)
+ */
 async function getPool() {
-  if (!poolPromise) {
-    poolPromise = sql.connect(dbConfig).catch((err) => {
-      poolPromise = null;
-      throw err;
-    });
+  try {
+    if (pool && pool.connected) {
+      return pool;
+    }
+    if (pool) {
+      await pool.close().catch(() => {});
+    }
+    pool = await sql.connect(dbConfig);
+    return pool;
+  } catch (err) {
+    pool = null;
+    throw err;
   }
-  return poolPromise;
 }
 
 module.exports = {
