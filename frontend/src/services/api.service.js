@@ -81,18 +81,62 @@ export async function fetchCatalogue() {
 }
 
 /**
- * Buscar un estudiante por carnet
+ * Buscar un estudiante por carnet con soporte dual (endpoint dedicado + fallback a /dashboard)
  */
 export async function fetchStudentByCarnet(carnet) {
   const baseUrl = getBaseApiUrl();
-  const url = `${baseUrl}/estudiantes/${encodeURIComponent(carnet)}`;
+  const cleanCarnet = (carnet || '').trim();
 
-  const response = await fetch(url);
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || 'Estudiante no encontrado');
+  // 1. Intentar endpoint dedicado /api/estudiantes/:carnet
+  try {
+    const response = await fetch(`${baseUrl}/estudiantes/${encodeURIComponent(cleanCarnet)}`);
+    if (response.ok) {
+      const json = await response.json();
+      const payload = json.data || json;
+      if (payload && payload.estudiante) {
+        return payload;
+      }
+    }
+  } catch (err) {
+    // Si falla la red del endpoint dedicado, continúa al fallback
   }
 
-  return data.data || data;
+  // 2. Fallback inteligente: Buscar en /api/dashboard (funciona tanto en local como en servidor UMG)
+  try {
+    const dashResponse = await fetch(`${baseUrl}/dashboard`);
+    if (dashResponse.ok) {
+      const dashData = await dashResponse.json();
+      const estudiantes = dashData.estudiantes || [];
+      const detalles = dashData.detalles || [];
+
+      const foundEst = estudiantes.find((e) => {
+        const c = (e.Carnet || e.carnet || '').trim().toLowerCase();
+        return c === cleanCarnet.toLowerCase();
+      });
+
+      if (foundEst) {
+        const studentMissions = detalles.filter((d) => {
+          const c = (d.Carnet || d.carnet || '').trim().toLowerCase();
+          return c === cleanCarnet.toLowerCase();
+        });
+
+        return {
+          estudiante: {
+            carnet: foundEst.Carnet || foundEst.carnet,
+            nombre: foundEst.Nombre || foundEst.nombre,
+            correo: foundEst.Correo || foundEst.correo,
+          },
+          misiones: studentMissions.map((m) => ({
+            MisionID: m.MisionID || m.misionId || m.idMision,
+            MisionNombre: m.MisionNombre || m.nombre,
+            Estado: m.Estado === 1 || m.Estado === true || m.estado === true,
+          })),
+        };
+      }
+    }
+  } catch (err) {
+    // Error al consultar dashboard
+  }
+
+  throw new Error(`Estudiante con carnet '${cleanCarnet}' no encontrado en la base de datos.`);
 }

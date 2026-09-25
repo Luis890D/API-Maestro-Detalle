@@ -63,10 +63,12 @@ export default function RegisterPage({ onRecordUpdated }) {
     if (data.misiones && Array.isArray(data.misiones)) {
       setMissions((prev) =>
         prev.map((m) => {
-          const found = data.misiones.find((dm) => dm.MisionID === m.idMision || dm.id_mision === m.idMision);
+          const found = data.misiones.find(
+            (dm) => (dm.MisionID ?? dm.id_mision ?? dm.idMision ?? dm.id) === m.idMision
+          );
           return {
             ...m,
-            estado: found ? Boolean(found.Estado ?? found.estado) : false,
+            estado: found ? Boolean(found.Estado ?? found.estado ?? found.completada) : false,
           };
         })
       );

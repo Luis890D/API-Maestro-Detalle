@@ -8,11 +8,11 @@ class StudentRepository {
     const pool = await getPool();
     const request = transaction ? new sql.Request(transaction) : pool.request();
 
-    request.input('carnet', sql.VarChar(50), carnet);
+    request.input('carnet', sql.VarChar(50), carnet.trim());
     const result = await request.query(`
       SELECT Carnet AS carnet, Nombre AS nombre, Correo AS correo 
       FROM Estudiantes 
-      WHERE Carnet = @carnet;
+      WHERE LTRIM(RTRIM(Carnet)) = LTRIM(RTRIM(@carnet));
     `);
 
     return result.recordset[0] || null;
