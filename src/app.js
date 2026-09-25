@@ -25,8 +25,9 @@ app.get('/', (req, res) => {
   });
 });
 
-// Rutas de la API
+// Rutas de la API (compatible con entorno local /api y serverless de Vercel)
 app.use('/api', routes);
+app.use('/', routes);
 
 // Middleware centralizado de errores
 app.use(errorHandler);
